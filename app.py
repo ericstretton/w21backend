@@ -17,7 +17,16 @@ def posts_get():
 
 @app.post('/api/posts')
 def posts_post():
-    return True
+    data = request.json
+    content = data.get('content')
+    user = data.get('user')
+    if not content:
+        return jsonify("Missing required argument: content"), 422
+    if not user:
+        return jsonify("Missing required field: user"), 422
+    run_query("INSERT INTO animal (name, image_url) VALUES(?,?)", [content, user])
+        
+    return jsonify("Post created"), 201
 
 @app.patch('/api/posts')
 def posts_patch():
