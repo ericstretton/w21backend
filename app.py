@@ -12,6 +12,10 @@ def posts_get():
     for post in post_list:
         an_obj = {}
         an_obj['postId'] = post[0]
+        an_obj['content'] = post[1]
+        an_obj['created_at'] = post[2]
+        an_obj['title'] = post[3]
+        an_obj['user'] = post[4]
         resp.append(an_obj)
     return jsonify(resp), 200
 
@@ -19,22 +23,38 @@ def posts_get():
 def posts_post():
     data = request.json
     content = data.get('content')
+    created_at = data.get('created_at')
+    title = data.get('title')
     user = data.get('user')
     if not content:
         return jsonify("Missing required argument: content"), 422
+    if not created_at:
+        return jsonify("Missing required argument: created_at"), 422
+    if not title:
+        return jsonify("Missing required argument: title"), 422
     if not user:
         return jsonify("Missing required field: user"), 422
-    run_query("INSERT INTO animal (name, image_url) VALUES(?,?)", [content, user])
+    run_query("INSERT INTO post (content, created_at, title, user) VALUES(?,?,?,?)", [content, created_at, title, user])
         
     return jsonify("Post created"), 201
 
 @app.patch('/api/posts')
 def posts_patch():
-    return True
+    data = request.json
+    id = data.get('postId')
+    content = data.get('content')
+    title = data.get('title')
+    run_query("UPDATE post SET content=?, title=? WHERE id=?", [content, title, id])
+        
+    return jsonify("Post created"), 201
 
 @app.delete('/api/posts')
 def posts_delete():
-    return True
+    data = request.json
+    postid = data.get('postId')
+    run_query("DELETE FROM post WHERE id=?", [postid])
+        
+    return jsonify("Post created"), 201
 
 
 
